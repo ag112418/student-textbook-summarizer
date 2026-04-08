@@ -105,6 +105,11 @@ def summarize_textbook_content(
             temperature=0.2,
         )
     except Exception as exc:  # noqa: BLE001 - return clean error to user
+        message = str(exc)
+        if "invalid_api_key" in message or "Incorrect API key provided" in message:
+            raise SummarizationError(
+                "Invalid OPENAI_API_KEY. Update your .env file with a valid key and restart the server."
+            ) from exc
         raise SummarizationError(f"Summarization request failed: {exc}") from exc
 
     content = (response.choices[0].message.content or "").strip()

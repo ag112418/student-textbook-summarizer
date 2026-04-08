@@ -19,7 +19,7 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request) -> HTMLResponse:
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(request, "index.html")
 
 
 @app.post("/api/summarize")
@@ -38,7 +38,8 @@ async def summarize(
             raise SummarizationError("Invalid summary style selected.")
 
         pdf_bytes = None
-        if pdf_file is not None:
+        has_uploaded_file = pdf_file is not None and bool((pdf_file.filename or "").strip())
+        if has_uploaded_file:
             if pdf_file.content_type not in {"application/pdf"}:
                 raise SummarizationError("Only PDF uploads are supported for files.")
             pdf_bytes = await pdf_file.read()
